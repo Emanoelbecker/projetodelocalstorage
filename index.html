@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras - Tema Hacker</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Ícones do Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Efeito Matrix (bits e bytes caindo) */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        
+        .card {
+            background-color: rgba(0, 0, 0, 0.85);
+            border: 1px solid #0f0;
+            color: #0f0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+        
+        .card-header {
+            background-color: #000;
+            border-bottom: 1px solid #0f0;
+            font-weight: bold;
+            text-shadow: 0 0 5px #0f0;
+        }
+        
+        .form-control, .form-control:focus {
+            background-color: #111;
+            border-color: #0f0;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn-primary {
+            background-color: #000;
+            border-color: #0f0;
+            color: #0f0;
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0f0;
+            border-color: #0f0;
+            color: #000;
+            text-shadow: none;
+        }
+        
+        .btn-outline-danger {
+            border-color: #f00;
+            color: #f00;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #f00;
+            border-color: #f00;
+            color: #000;
+        }
+        
+        .list-group-item {
+            background-color: rgba(0, 20, 0, 0.3);
+            border-color: #0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #0f0;
+        }
+        
+        .completed {
+            text-decoration: line-through;
+            color: #0a0 !important;
+            opacity: 0.7;
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .quantity-badge {
+            background-color: #000 !important;
+            border: 1px solid #0f0;
+            color: #0f0 !important;
+        }
+        
+        /* Estilos para os botões de ação */
+        .btn-success {
+            background-color: #000;
+            border-color: #0f0;
+            color: #0f0;
+        }
+        
+        .btn-success:hover {
+            background-color: #0f0;
+            color: #000;
+        }
+        
+        .btn-warning {
+            background-color: #000;
+            border-color: #ff0;
+            color: #ff0;
+        }
+        
+        .btn-warning:hover {
+            background-color: #ff0;
+            color: #000;
+        }
+        
+        .btn-danger {
+            background-color: #000;
+            border-color: #f00;
+            color: #f00;
+        }
+        
+        .btn-danger:hover {
+            background-color: #f00;
+            color: #000;
+        }
+        
+        /* Estilo para o footer do card */
+        .card-footer {
+            background-color: #000;
+            border-top: 1px solid #0f0;
+            font-size: 0.9em;
+        }
+        
+        /* Efeito de glitch no título */
+        .glitch-effect {
+            position: relative;
+        }
+        
+        .glitch-effect::before, .glitch-effect::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+        
+        .glitch-effect::before {
+            left: 2px;
+            text-shadow: -2px 0 #f00;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        
+        .glitch-effect::after {
+            left: -2px;
+            text-shadow: -2px 0 #00f;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(31px, 9999px, 94px, 0); }
+            10% { clip: rect(112px, 9999px, 76px, 0); }
+            20% { clip: rect(85px, 9999px, 77px, 0); }
+            30% { clip: rect(27px, 9999px, 97px, 0); }
+            40% { clip: rect(64px, 9999px, 98px, 0); }
+            50% { clip: rect(61px, 9999px, 85px, 0); }
+            60% { clip: rect(99px, 9999px, 114px, 0); }
+            70% { clip: rect(34px, 9999px, 115px, 0); }
+            80% { clip: rect(98px, 9999px, 129px, 0); }
+            90% { clip: rect(43px, 9999px, 96px, 0); }
+            100% { clip: rect(82px, 9999px, 64px, 0); }
+        }
+        
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 119px, 0); }
+            10% { clip: rect(66px, 9999px, 115px, 0); }
+            20% { clip: rect(117px, 9999px, 114px, 0); }
+            30% { clip: rect(40px, 9999px, 128px, 0); }
+            40% { clip: rect(105px, 9999px, 57px, 0); }
+            50% { clip: rect(48px, 9999px, 147px, 0); }
+            60% { clip: rect(100px, 9999px, 131px, 0); }
+            70% { clip: rect(91px, 9999px, 110px, 0); }
+            80% { clip: rect(53px, 9999px, 81px, 0); }
+            90% { clip: rect(107px, 9999px, 74px, 0); }
+            100% { clip: rect(73px, 9999px, 107px, 0); }
+        }
+        
+        /* Efeito de piscar no cursor */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Efeito Matrix (bits e bytes caindo) -->
+    <canvas id="matrix" class="matrix-bg"></canvas>
+    
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="h4 mb-0 glitch-effect" data-text=">_ Lista de Compras">
+                            >_ Lista de Compras<span class="blink">|</span>
+                        </h1>
+                    </div>
+                    <div class="card-body">
+                        <form id="shoppingForm" class="mb-4">
+                            <div class="input-group">
+                                <input type="text" id="itemInput" class="form-control" placeholder="> Adicione um item..." required>
+                                <input type="number" id="quantityInput" class="form-control" placeholder="Qtd" min="1" value="1" style="max-width: 80px;">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-plus-lg"></i> Executar
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <h2 class="h5">>_ Itens na lista</h2>
+                            <button id="clearAllBtn" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Limpar sistema
+                            </button>
+                        </div>
+                        
+                        <ul id="shoppingList" class="list-group">
+                            <!-- Itens serão adicionados aqui via JavaScript -->
+                        </ul>
+                    </div>
+                    <div class="card-footer text-muted">
+                        > Total de itens: <span id="totalItems">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Efeito Matrix no fundo
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const symbols = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
+        
+        const alphabet = katakana + latin + nums + symbols;
+        
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        
+        const rainDrops = [];
+        
+        for (let x = 0; x < columns; x++) {
+            rainDrops[x] = 1;
+        }
+        
+        const draw = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0f0';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        };
+        
+        setInterval(draw, 30);
+        
+        // Lista de Compras
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do DOM
+            const shoppingForm = document.getElementById('shoppingForm');
+            const itemInput = document.getElementById('itemInput');
+            const quantityInput = document.getElementById('quantityInput');
+            const shoppingList = document.getElementById('shoppingList');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const totalItemsSpan = document.getElementById('totalItems');
+            
+            // Carregar itens do Local Storage ao iniciar
+            loadItems();
+            
+            // Event Listener para o formulário
+            shoppingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                addItem();
+            });
+            
+            // Event Listener para o botão Limpar Tudo
+            clearAllBtn.addEventListener('click', clearAllItems);
+            
+            // Função para adicionar item
+            function addItem() {
+                const itemText = itemInput.value.trim();
+                const quantity = parseInt(quantityInput.value) || 1;
+                
+                if (itemText) {
+                    // Criar objeto do item
+                    const item = {
+                        id: Date.now(),
+                        text: itemText,
+                        quantity: quantity,
+                        completed: false
+                    };
+                    
+                    // Adicionar ao Local Storage
+                    saveItem(item);
+                    
+                    // Adicionar à lista
+                    addItemToDOM(item);
+                    
+                    // Limpar o campo de input
+                    itemInput.value = '';
+                    quantityInput.value = '1';
+                    itemInput.focus();
+                    
+                    // Atualizar contador
+                    updateTotalItems();
+                }
+            }
+            
+            // Função para adicionar item ao DOM
+            function addItemToDOM(item) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.dataset.id = item.id;
+                
+                if (item.completed) {
+                    li.classList.add('completed');
+                }
+                
+                li.innerHTML = `
+                    <div>
+                        <span class="quantity-badge badge me-2">${item.quantity}</span>
+                        ${item.text}
+                    </div>
+                    <div class="item-actions">
+                        <button class="toggle-complete btn btn-sm ${item.completed ? 'btn-warning' : 'btn-success'}">
+                            <i class="bi ${item.completed ? 'bi-arrow-counterclockwise' : 'bi-check'}"></i>
+                        </button>
+                        <button class="delete-item btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Adicionar event listeners aos botões
+                li.querySelector('.toggle-complete').addEventListener('click', toggleItemComplete);
+                li.querySelector('.delete-item').addEventListener('click', deleteItem);
+                
+                shoppingList.appendChild(li);
+            }
+            
+            // Função para alternar estado de completado
+            function toggleItemComplete(e) {
+                const li = e.target.closest('li');
+                const id = parseInt(li.dataset.id);
+                
+                // Obter itens do Local Storage
+                let items = getItemsFromStorage();
+                
+                // Encontrar e atualizar o item
+                items = items.map(item => {
+                    if (item.id === id) {
+                        item.completed = !item.completed;
+                    }
+                    return item;
+                });
+                
+                // Salvar de volta no Local Storage
+                localStorage.setItem('shoppingItems', JSON.stringify(items));
+                
+                // Atualizar visualização
+                li.classList.toggle('completed');
+                
+                // Atualizar botão
+                const toggleBtn = li.querySelector('.toggle-complete');
+                if (li.classList.contains('completed')) {
+                    toggleBtn.classList.remove('btn-success');
+                    toggleBtn.classList.add('btn-warning');
+                    toggleBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>';
+                } else {
+                    toggleBtn.classList.remove('btn-warning');
+                    toggleBtn.classList.add('btn-success');
+                    toggleBtn.innerHTML = '<i class="bi bi-check"></i>';
+                }
+            }
+            
+            // Função para deletar item
+            function deleteItem(e) {
+                if (confirm('Tem certeza que deseja remover este item?')) {
+                    const li = e.target.closest('li');
+                    const id = parseInt(li.dataset.id);
+                    
+                    // Remover do Local Storage
+                    removeItemFromStorage(id);
+                    
+                    // Remover do DOM
+                    li.remove();
+                    
+                    // Atualizar contador
+                    updateTotalItems();
+                }
+            }
+            
+            // Função para limpar todos os itens
+            function clearAllItems() {
+                if (confirm('Tem certeza que deseja limpar toda a lista?')) {
+                    // Limpar Local Storage
+                    localStorage.removeItem('shoppingItems');
+                    
+                    // Limpar DOM
+                    shoppingList.innerHTML = '';
+                    
+                    // Atualizar contador
+                    updateTotalItems();
+                }
+            }
+            
+            // Funções para Local Storage
+            function getItemsFromStorage() {
+                return JSON.parse(localStorage.getItem('shoppingItems')) || [];
+            }
+            
+            function saveItem(item) {
+                const items = getItemsFromStorage();
+                items.push(item);
+                localStorage.setItem('shoppingItems', JSON.stringify(items));
+            }
+            
+            function removeItemFromStorage(id) {
+                let items = getItemsFromStorage();
+                items = items.filter(item => item.id !== id);
+                localStorage.setItem('shoppingItems', JSON.stringify(items));
+            }
+            
+            // Função para carregar itens do Local Storage
+            function loadItems() {
+                const items = getItemsFromStorage();
+                
+                if (items.length > 0) {
+                    items.forEach(item => addItemToDOM(item));
+                }
+                
+                updateTotalItems();
+            }
+            
+            // Função para atualizar o contador de itens
+            function updateTotalItems() {
+                const items = getItemsFromStorage();
+                totalItemsSpan.textContent = items.length;
+            }
+        });
+    </script>
+</body>
+</html>
