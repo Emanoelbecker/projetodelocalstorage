@@ -229,7 +229,8 @@
                             <div class="input-group">
                                 <input type="text" id="itemInput" class="form-control" placeholder="> Adicione um item..." required>
                                 <input type="number" id="quantityInput" class="form-control" placeholder="Qtd" min="1" value="1" style="max-width: 80px;">
-                                <button type="submit" class="btn btn-primary">
+                                <button id="botao" type="submit" class="btn btn-primary"><!-- coloquei um id no button para conseguir usar ele numa função de click -->
+                                    <span id="quantofoiclicado"> 0 clickes</span>
                                     <i class="bi bi-plus-lg"></i> Executar
                                 </button>
                             </div>
@@ -310,6 +311,8 @@
             const shoppingList = document.getElementById('shoppingList');
             const clearAllBtn = document.getElementById('clearAllBtn');
             const totalItemsSpan = document.getElementById('totalItems');
+            const botaoquevaiserclicado = document.getElementById('botao');
+            const contadordecliques = document.getElementById('quantofoiclicado');
             
             // Carregar itens do Local Storage ao iniciar
             loadItems();
@@ -319,6 +322,7 @@
                 e.preventDefault();
                 addItem();
             });
+            
             
             // Event Listener para o botão Limpar Tudo
             clearAllBtn.addEventListener('click', clearAllItems);
@@ -352,7 +356,14 @@
                     updateTotalItems();
                 }
             }
-            
+            let contador = 0; // inicializa o a variavel que conta os clikes
+
+            botaoquevaiserclicado.addEventListener('click', function () {
+                
+              contadordecliques.textContent = contador++;
+
+            }
+        
             // Função para adicionar item ao DOM
             function addItemToDOM(item) {
                 const li = document.createElement('li');
