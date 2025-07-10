@@ -156,7 +156,8 @@
         <button type="submit">Adicionar</button>
     </form>
     
-    <button id="special-button" class="click-counter-btn">Clique Aqui!</button>
+    <button id="special-button" class="click-counter-btn">Clique Aqui para aumentar!</button>
+    <button id="notspecial-button" class="click-counter-btn">Clique Aqui para diminuir!</button>
     
     <ul id="task-list"></ul>
 
@@ -170,17 +171,19 @@
         const specialCounter = document.getElementById('special-counter');
         const themeToggle = document.getElementById('theme-toggle');
         const specialButton = document.getElementById('special-button');
+        const notspecialButton = document.getElementById('notspecial-button');
 
         // Array para armazenar as tarefas
         let tasks = [];
         let addClicks = 0;
         let specialButtonClicks = 0;
+        let notspecialButtonClicks = 0;
 
         // Função para atualizar contadores
         function updateCounters() {
             taskCount.textContent = tasks.length;
             clickCount.textContent = addClicks;
-            specialCounter.textContent = specialButtonClicks;
+            specialCounter.textContent = specialButtonClicks - notspecialButtonClicks;
         }
 
         // Função para carregar dados do Local Storage
@@ -205,6 +208,9 @@
             const storedSpecialClicks = localStorage.getItem('specialButtonClicks');
             specialButtonClicks = storedSpecialClicks ? parseInt(storedSpecialClicks) : 0;
 
+            const storednotSpecialClicks = localStorage.getItem('notspecialButtonClicks');
+            specialButtonClicks = storednotSpecialClicks ? parseInt(storednotSpecialClicks) : 0;
+
             // Carrega tema
             const darkMode = localStorage.getItem('darkMode') === 'true';
             if (darkMode) {
@@ -220,6 +226,7 @@
             localStorage.setItem('tasks', JSON.stringify(tasks));
             localStorage.setItem('addClicks', addClicks.toString());
             localStorage.setItem('specialButtonClicks', specialButtonClicks.toString());
+            localStorage.setItem('notspecialButtonClicks', notspecialButtonClicks.toString());
         }
 
         // Função para adicionar uma nova tarefa
@@ -246,7 +253,7 @@
             }
         }
 
-        // Função para adicionar tarefa ao DOM
+        // Função para adicionar tarefa ao DOM Joaquimsenhaforte01!
         function addTaskToDOM(task) {
             const li = document.createElement('li');
             li.setAttribute('data-id', task.id);
@@ -323,11 +330,18 @@
                 specialButton.style.transform = 'scale(1)';
             }, 100);
         }
+        function countnotSpecialClick() {
+            notspecialButtonClicks++;
+            saveData();
+            updateCounters();
+            
+        }
 
         // Event Listeners
         taskForm.addEventListener('submit', addTask);
         themeToggle.addEventListener('click', toggleTheme);
         specialButton.addEventListener('click', countSpecialClick);
+        notspecialButton.addEventListener('click', countnotSpecialClick);
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', loadData);
