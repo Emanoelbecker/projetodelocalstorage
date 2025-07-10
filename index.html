@@ -1,501 +1,336 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Compras - Tema Hacker</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Ícones do Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <title>Lista de Tarefas</title>
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --task-bg: #f9f9f9;
+            --button-bg: #4CAF50;
+            --button-hover: #45a049;
+            --delete-btn: #f44336;
+            --delete-hover: #d32f2f;
+            --border-color: #dddddd;
+            --counter-btn: #2196F3;
+            --counter-hover: #0b7dda;
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --task-bg: #2d2d2d;
+            --button-bg: #2E7D32;
+            --button-hover: #1B5E20;
+            --delete-btn: #C62828;
+            --delete-hover: #B71C1C;
+            --border-color: #444444;
+            --counter-btn: #1565C0;
+            --counter-hover: #0d47a1;
+        }
+
         body {
-            background-color: #000;
-            color: #0f0;
-            font-family: 'Courier New', monospace;
-            overflow-x: hidden;
-            min-height: 100vh;
-            position: relative;
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
-        
-        /* Efeito Matrix (bits e bytes caindo) */
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.15;
-            pointer-events: none;
-        }
-        
-        .card {
-            background-color: rgba(0, 0, 0, 0.85);
-            border: 1px solid #0f0;
-            color: #0f0;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-        }
-        
-        .card-header {
-            background-color: #000;
-            border-bottom: 1px solid #0f0;
-            font-weight: bold;
-            text-shadow: 0 0 5px #0f0;
-        }
-        
-        .form-control, .form-control:focus {
-            background-color: #111;
-            border-color: #0f0;
-            color: #0f0;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .btn-primary {
-            background-color: #000;
-            border-color: #0f0;
-            color: #0f0;
-            font-weight: bold;
-        }
-        
-        .btn-primary:hover {
-            background-color: #0f0;
-            border-color: #0f0;
-            color: #000;
-            text-shadow: none;
-        }
-        
-        .btn-outline-danger {
-            border-color: #f00;
-            color: #f00;
-        }
-        
-        .btn-outline-danger:hover {
-            background-color: #f00;
-            border-color: #f00;
-            color: #000;
-        }
-        
-        .list-group-item {
-            background-color: rgba(0, 20, 0, 0.3);
-            border-color: #0f0;
+
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #0f0;
+            margin-bottom: 20px;
         }
-        
-        .completed {
-            text-decoration: line-through;
-            color: #0a0 !important;
-            opacity: 0.7;
-        }
-        
-        .item-actions {
+
+        .counters {
             display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--text-color);
+            flex-wrap: wrap;
+        }
+
+        .counter {
+            background-color: var(--task-bg);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        #task-form {
+            display: flex;
+            margin-bottom: 20px;
             gap: 10px;
         }
-        
-        .quantity-badge {
-            background-color: #000 !important;
-            border: 1px solid #0f0;
-            color: #0f0 !important;
+
+        #task-input {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
-        
-        /* Estilos para os botões de ação */
-        .btn-success {
-            background-color: #000;
-            border-color: #0f0;
-            color: #0f0;
+
+        button {
+            padding: 10px 15px;
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        
-        .btn-success:hover {
-            background-color: #0f0;
-            color: #000;
+
+        button:hover {
+            background-color: var(--button-hover);
         }
-        
-        .btn-warning {
-            background-color: #000;
-            border-color: #ff0;
-            color: #ff0;
+
+        ul {
+            list-style-type: none;
+            padding: 0;
         }
-        
-        .btn-warning:hover {
-            background-color: #ff0;
-            color: #000;
+
+        li {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: var(--task-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
         }
-        
-        .btn-danger {
-            background-color: #000;
-            border-color: #f00;
-            color: #f00;
+
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.7;
         }
-        
-        .btn-danger:hover {
-            background-color: #f00;
-            color: #000;
+
+        .delete-btn {
+            background-color: var(--delete-btn);
         }
-        
-        /* Estilo para o footer do card */
-        .card-footer {
-            background-color: #000;
-            border-top: 1px solid #0f0;
-            font-size: 0.9em;
+
+        .delete-btn:hover {
+            background-color: var(--delete-hover);
         }
-        
-        /* Efeito de glitch no título */
-        .glitch-effect {
-            position: relative;
+
+        .theme-toggle {
+            background-color: var(--button-bg);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 12px;
         }
-        
-        .glitch-effect::before, .glitch-effect::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
+
+        .click-counter-btn {
+            background-color: var(--counter-btn);
+            margin-left: auto;
+            display: block;
+            margin-top: 10px;
         }
-        
-        .glitch-effect::before {
-            left: 2px;
-            text-shadow: -2px 0 #f00;
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim 5s infinite linear alternate-reverse;
-        }
-        
-        .glitch-effect::after {
-            left: -2px;
-            text-shadow: -2px 0 #00f;
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim2 5s infinite linear alternate-reverse;
-        }
-        
-        @keyframes glitch-anim {
-            0% { clip: rect(31px, 9999px, 94px, 0); }
-            10% { clip: rect(112px, 9999px, 76px, 0); }
-            20% { clip: rect(85px, 9999px, 77px, 0); }
-            30% { clip: rect(27px, 9999px, 97px, 0); }
-            40% { clip: rect(64px, 9999px, 98px, 0); }
-            50% { clip: rect(61px, 9999px, 85px, 0); }
-            60% { clip: rect(99px, 9999px, 114px, 0); }
-            70% { clip: rect(34px, 9999px, 115px, 0); }
-            80% { clip: rect(98px, 9999px, 129px, 0); }
-            90% { clip: rect(43px, 9999px, 96px, 0); }
-            100% { clip: rect(82px, 9999px, 64px, 0); }
-        }
-        
-        @keyframes glitch-anim2 {
-            0% { clip: rect(65px, 9999px, 119px, 0); }
-            10% { clip: rect(66px, 9999px, 115px, 0); }
-            20% { clip: rect(117px, 9999px, 114px, 0); }
-            30% { clip: rect(40px, 9999px, 128px, 0); }
-            40% { clip: rect(105px, 9999px, 57px, 0); }
-            50% { clip: rect(48px, 9999px, 147px, 0); }
-            60% { clip: rect(100px, 9999px, 131px, 0); }
-            70% { clip: rect(91px, 9999px, 110px, 0); }
-            80% { clip: rect(53px, 9999px, 81px, 0); }
-            90% { clip: rect(107px, 9999px, 74px, 0); }
-            100% { clip: rect(73px, 9999px, 107px, 0); }
-        }
-        
-        /* Efeito de piscar no cursor */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        
-        .blink {
-            animation: blink 1s step-end infinite;
+
+        .click-counter-btn:hover {
+            background-color: var(--counter-hover);
         }
     </style>
 </head>
 <body>
-    <!-- Efeito Matrix (bits e bytes caindo) -->
-    <canvas id="matrix" class="matrix-bg"></canvas>
-    
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h1 class="h4 mb-0 glitch-effect" data-text=">_ Lista de Compras">
-                            >_ Lista de Compras<span class="blink">|</span>
-                        </h1>
-                    </div>
-                    <div class="card-body">
-                        <form id="shoppingForm" class="mb-4">
-                            <div class="input-group">
-                                <input type="text" id="itemInput" class="form-control" placeholder="> Adicione um item..." required>
-                                <input type="number" id="quantityInput" class="form-control" placeholder="Qtd" min="1" value="1" style="max-width: 80px;">
-                                <button id="botao" type="submit" class="btn btn-primary"><!-- coloquei um id no button para conseguir usar ele numa função de click -->
-                                    <span id="quantofoiclicado"> 0 clickes</span>
-                                    <i class="bi bi-plus-lg"></i> Executar
-                                </button>
-                            </div>
-                        </form>
-                        
-                        <div class="d-flex justify-content-between mb-3">
-                            <h2 class="h5">>_ Itens na lista</h2>
-                            <button id="clearAllBtn" class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-trash"></i> Limpar sistema
-                            </button>
-                        </div>
-                        
-                        <ul id="shoppingList" class="list-group">
-                            <!-- Itens serão adicionados aqui via JavaScript -->
-                        </ul>
-                    </div>
-                    <div class="card-footer text-muted">
-                        > Total de itens: <span id="totalItems">0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="header">
+        <h1>Minha Lista de Tarefas</h1>
+        <button id="theme-toggle" class="theme-toggle">Modo Escuro</button>
     </div>
-
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <div class="counters">
+        <div class="counter">Tarefas: <span id="task-count">0</span></div>
+        <div class="counter">Adições: <span id="click-count">0</span></div>
+        <div class="counter">Botão Clicado: <span id="special-counter">0</span></div>
+    </div>
+    
+    <form id="task-form">
+        <input type="text" id="task-input" placeholder="Nova tarefa..." required>
+        <button type="submit">Adicionar</button>
+    </form>
+    
+    <button id="special-button" class="click-counter-btn">Clique Aqui!</button>
+    
+    <ul id="task-list"></ul>
+
     <script>
-        // Efeito Matrix no fundo
-        const canvas = document.getElementById('matrix');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        
-        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
-        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const nums = '0123456789';
-        const symbols = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
-        
-        const alphabet = katakana + latin + nums + symbols;
-        
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        
-        const rainDrops = [];
-        
-        for (let x = 0; x < columns; x++) {
-            rainDrops[x] = 1;
+        // Seleciona elementos do DOM
+        const taskForm = document.getElementById('task-form');
+        const taskInput = document.getElementById('task-input');
+        const taskList = document.getElementById('task-list');
+        const taskCount = document.getElementById('task-count');
+        const clickCount = document.getElementById('click-count');
+        const specialCounter = document.getElementById('special-counter');
+        const themeToggle = document.getElementById('theme-toggle');
+        const specialButton = document.getElementById('special-button');
+
+        // Array para armazenar as tarefas
+        let tasks = [];
+        let addClicks = 0;
+        let specialButtonClicks = 0;
+
+        // Função para atualizar contadores
+        function updateCounters() {
+            taskCount.textContent = tasks.length;
+            clickCount.textContent = addClicks;
+            specialCounter.textContent = specialButtonClicks;
         }
-        
-        const draw = () => {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Função para carregar dados do Local Storage
+        function loadData() {
+            // Carrega tarefas
+            const storedTasks = localStorage.getItem('tasks') || '[]';
             
-            ctx.fillStyle = '#0f0';
-            ctx.font = fontSize + 'px monospace';
-            
-            for (let i = 0; i < rainDrops.length; i++) {
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-                
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
+            try {
+                tasks = JSON.parse(storedTasks);
+                tasks.forEach(task => {
+                    addTaskToDOM(task);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar tarefas:', error);
+                tasks = [];
             }
-        };
-        
-        setInterval(draw, 30);
-        
-        // Lista de Compras
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elementos do DOM
-            const shoppingForm = document.getElementById('shoppingForm');
-            const itemInput = document.getElementById('itemInput');
-            const quantityInput = document.getElementById('quantityInput');
-            const shoppingList = document.getElementById('shoppingList');
-            const clearAllBtn = document.getElementById('clearAllBtn');
-            const totalItemsSpan = document.getElementById('totalItems');
-            const botaoquevaiserclicado = document.getElementById('botao');
-            const contadordecliques = document.getElementById('quantofoiclicado');
+
+            // Carrega contadores
+            const storedClicks = localStorage.getItem('addClicks');
+            addClicks = storedClicks ? parseInt(storedClicks) : 0;
+
+            const storedSpecialClicks = localStorage.getItem('specialButtonClicks');
+            specialButtonClicks = storedSpecialClicks ? parseInt(storedSpecialClicks) : 0;
+
+            // Carrega tema
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = 'Modo Claro';
+            }
+
+            updateCounters();
+        }
+
+        // Função para salvar dados no Local Storage
+        function saveData() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('addClicks', addClicks.toString());
+            localStorage.setItem('specialButtonClicks', specialButtonClicks.toString());
+        }
+
+        // Função para adicionar uma nova tarefa
+        function addTask(event) {
+            event.preventDefault();
             
-            // Carregar itens do Local Storage ao iniciar
-            loadItems();
+            const taskText = taskInput.value.trim();
             
-            // Event Listener para o formulário
-            shoppingForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                addItem();
+            if (taskText) {
+                const task = {
+                    id: Date.now(),
+                    text: taskText,
+                    completed: false
+                };
+                
+                tasks.push(task);
+                addTaskToDOM(task);
+                
+                addClicks++;
+                saveData();
+                updateCounters();
+                
+                taskInput.value = '';
+            }
+        }
+
+        // Função para adicionar tarefa ao DOM
+        function addTaskToDOM(task) {
+            const li = document.createElement('li');
+            li.setAttribute('data-id', task.id);
+            
+            if (task.completed) {
+                li.classList.add('completed');
+            }
+            
+            li.innerHTML = `
+                <span>${task.text}</span>
+                <button class="delete-btn">Excluir</button>
+            `;
+            
+            li.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'BUTTON') {
+                    toggleTaskCompletion(task.id);
+                }
             });
             
+            const deleteBtn = li.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                deleteTask(task.id);
+            });
             
-            // Event Listener para o botão Limpar Tudo
-            clearAllBtn.addEventListener('click', clearAllItems);
+            taskList.appendChild(li);
+        }
+
+        // Função para alternar o status de conclusão da tarefa
+        function toggleTaskCompletion(id) {
+            const taskIndex = tasks.findIndex(task => task.id === id);
             
-            // Função para adicionar item
-            function addItem() {
-                const itemText = itemInput.value.trim();
-                const quantity = parseInt(quantityInput.value) || 1;
+            if (taskIndex !== -1) {
+                tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                saveData();
                 
-                if (itemText) {
-                    // Criar objeto do item
-                    const item = {
-                        id: Date.now(),
-                        text: itemText,
-                        quantity: quantity,
-                        completed: false
-                    };
-                    
-                    // Adicionar ao Local Storage
-                    saveItem(item);
-                    
-                    // Adicionar à lista
-                    addItemToDOM(item);
-                    
-                    // Limpar o campo de input
-                    itemInput.value = '';
-                    quantityInput.value = '1';
-                    itemInput.focus();
-                    
-                    // Atualizar contador
-                    updateTotalItems();
-                }
-            }
-            let contador = 0; // inicializa o a variavel que conta os clikes
-
-            botaoquevaiserclicado.addEventListener('click', function () {
-                
-              contadordecliques.textContent = contador++;
-
-            }
-        
-            // Função para adicionar item ao DOM
-            function addItemToDOM(item) {
-                const li = document.createElement('li');
-                li.className = 'list-group-item';
-                li.dataset.id = item.id;
-                
-                if (item.completed) {
+                const li = document.querySelector(`li[data-id="${id}"]`);
+                if (tasks[taskIndex].completed) {
                     li.classList.add('completed');
-                }
-                
-                li.innerHTML = `
-                    <div>
-                        <span class="quantity-badge badge me-2">${item.quantity}</span>
-                        ${item.text}
-                    </div>
-                    <div class="item-actions">
-                        <button class="toggle-complete btn btn-sm ${item.completed ? 'btn-warning' : 'btn-success'}">
-                            <i class="bi ${item.completed ? 'bi-arrow-counterclockwise' : 'bi-check'}"></i>
-                        </button>
-                        <button class="delete-item btn btn-sm btn-danger">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                `;
-                
-                // Adicionar event listeners aos botões
-                li.querySelector('.toggle-complete').addEventListener('click', toggleItemComplete);
-                li.querySelector('.delete-item').addEventListener('click', deleteItem);
-                
-                shoppingList.appendChild(li);
-            }
-            
-            // Função para alternar estado de completado
-            function toggleItemComplete(e) {
-                const li = e.target.closest('li');
-                const id = parseInt(li.dataset.id);
-                
-                // Obter itens do Local Storage
-                let items = getItemsFromStorage();
-                
-                // Encontrar e atualizar o item
-                items = items.map(item => {
-                    if (item.id === id) {
-                        item.completed = !item.completed;
-                    }
-                    return item;
-                });
-                
-                // Salvar de volta no Local Storage
-                localStorage.setItem('shoppingItems', JSON.stringify(items));
-                
-                // Atualizar visualização
-                li.classList.toggle('completed');
-                
-                // Atualizar botão
-                const toggleBtn = li.querySelector('.toggle-complete');
-                if (li.classList.contains('completed')) {
-                    toggleBtn.classList.remove('btn-success');
-                    toggleBtn.classList.add('btn-warning');
-                    toggleBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>';
                 } else {
-                    toggleBtn.classList.remove('btn-warning');
-                    toggleBtn.classList.add('btn-success');
-                    toggleBtn.innerHTML = '<i class="bi bi-check"></i>';
+                    li.classList.remove('completed');
                 }
             }
+        }
+
+        // Função para deletar uma tarefa
+        function deleteTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveData();
+            updateCounters();
             
-            // Função para deletar item
-            function deleteItem(e) {
-                if (confirm('Tem certeza que deseja remover este item?')) {
-                    const li = e.target.closest('li');
-                    const id = parseInt(li.dataset.id);
-                    
-                    // Remover do Local Storage
-                    removeItemFromStorage(id);
-                    
-                    // Remover do DOM
-                    li.remove();
-                    
-                    // Atualizar contador
-                    updateTotalItems();
-                }
-            }
+            const li = document.querySelector(`li[data-id="${id}"]`);
+            li.remove();
+        }
+
+        // Função para alternar entre modo claro e escuro
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
             
-            // Função para limpar todos os itens
-            function clearAllItems() {
-                if (confirm('Tem certeza que deseja limpar toda a lista?')) {
-                    // Limpar Local Storage
-                    localStorage.removeItem('shoppingItems');
-                    
-                    // Limpar DOM
-                    shoppingList.innerHTML = '';
-                    
-                    // Atualizar contador
-                    updateTotalItems();
-                }
-            }
+            themeToggle.textContent = isDark ? 'Modo Claro' : 'Modo Escuro';
+            localStorage.setItem('darkMode', isDark.toString());
+        }
+
+        // Função para contar cliques no botão especial
+        function countSpecialClick() {
+            specialButtonClicks++;
+            saveData();
+            updateCounters();
             
-            // Funções para Local Storage
-            function getItemsFromStorage() {
-                return JSON.parse(localStorage.getItem('shoppingItems')) || [];
-            }
-            
-            function saveItem(item) {
-                const items = getItemsFromStorage();
-                items.push(item);
-                localStorage.setItem('shoppingItems', JSON.stringify(items));
-            }
-            
-            function removeItemFromStorage(id) {
-                let items = getItemsFromStorage();
-                items = items.filter(item => item.id !== id);
-                localStorage.setItem('shoppingItems', JSON.stringify(items));
-            }
-            
-            // Função para carregar itens do Local Storage
-            function loadItems() {
-                const items = getItemsFromStorage();
-                
-                if (items.length > 0) {
-                    items.forEach(item => addItemToDOM(item));
-                }
-                
-                updateTotalItems();
-            }
-            
-            // Função para atualizar o contador de itens
-            function updateTotalItems() {
-                const items = getItemsFromStorage();
-                totalItemsSpan.textContent = items.length;
-            }
-        });
+            // Efeito visual de clique
+            specialButton.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                specialButton.style.transform = 'scale(1)';
+            }, 100);
+        }
+
+        // Event Listeners
+        taskForm.addEventListener('submit', addTask);
+        themeToggle.addEventListener('click', toggleTheme);
+        specialButton.addEventListener('click', countSpecialClick);
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
